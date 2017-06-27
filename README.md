@@ -13,4 +13,7 @@ This is a working demo that draws yellow boxes around detected faces.
 ```
   final Bitmap bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.a);
  ```
- 
+
+# Thanks
+Tutorial source: EDMTDev
+Youtube link: http://youtube.com/eddydn71
