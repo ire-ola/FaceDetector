@@ -15,5 +15,5 @@ This is a working demo that draws yellow boxes around detected faces.
  ```
 
 # Thanks
-Tutorial source: EDMTDev
+Tutorial source: EDMTDev.
 Youtube link: http://youtube.com/eddydn71
