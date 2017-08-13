@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.SparseArray;
@@ -23,6 +24,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView imageView;
     private Button processButton;
+    Canvas canvas;
+    Paint rectPaint;
+    Bitmap bitmap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,51 +37,62 @@ public class MainActivity extends AppCompatActivity {
         processButton = (Button) findViewById(R.id.process_button);
 
 //        Reference your image here
-        final Bitmap bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.tress_app);
+        bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.e);
 
         imageView.setImageBitmap(bitmap);
 
 //        Makes the image fit properly
-        final Paint rectPaint = new Paint();
+        rectPaint = new Paint();
         rectPaint.setStrokeWidth(5);
         rectPaint.setColor(Color.YELLOW);
         rectPaint.setStyle(Paint.Style.STROKE);
 
 //        Canvas to display bitmap
         final Bitmap tempBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.RGB_565);
-        final Canvas canvas = new Canvas(tempBitmap);
+        canvas = new Canvas(tempBitmap);
         canvas.drawBitmap(bitmap, 0, 0, null);
 
         processButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FaceDetector faceDetector = new FaceDetector.Builder(getApplicationContext())
-                        .setTrackingEnabled(false)
-                        .setLandmarkType(FaceDetector.ALL_LANDMARKS)
-                        .setMode(FaceDetector.FAST_MODE)
-                        .build();
-
-                if (!faceDetector.isOperational()){
-                    Toast.makeText(MainActivity.this, "FaceDetector couldn't be installed", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Frame frame = new Frame.Builder().setBitmap(bitmap).build();
-                SparseArray<Face> sparseArray = faceDetector.detect(frame);
-
-                for (int i = 0; i < sparseArray.size(); i++){
-                    Face face = sparseArray.valueAt(i);
-                    float x1 = face.getPosition().x;
-                    float y1 = face.getPosition().y;
-                    float x2 = x1 + face.getWidth();
-                    float y2 = y1 + face.getHeight();
-                    RectF rectF = new RectF(x1, y1, x2, y2);
-                    canvas.drawRoundRect(rectF, 2, 2, rectPaint);
-                }
+                new DetectFaceTask().execute();
 
                 imageView.setImageDrawable(new BitmapDrawable(getResources(), tempBitmap));
             }
         });
     }
 
+    private class DetectFaceTask extends AsyncTask<Void, Void, FaceDetector>{
+
+        @Override
+        protected FaceDetector doInBackground(Void... faceDetectors) {
+            FaceDetector faceDetector = new FaceDetector.Builder(getApplicationContext())
+                    .setTrackingEnabled(false)
+                    .setLandmarkType(FaceDetector.ALL_LANDMARKS)
+                    .setMode(FaceDetector.FAST_MODE)
+                    .build();
+
+            if (!faceDetector.isOperational()){
+                Toast.makeText(MainActivity.this, "FaceDetector couldn't be installed", Toast.LENGTH_SHORT).show();
+//                return;
+            }
+
+            Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+            SparseArray<Face> sparseArray = faceDetector.detect(frame);
+
+            for (int i = 0; i < sparseArray.size(); i++){
+                Face face = sparseArray.valueAt(i);
+                float x1 = face.getPosition().x;
+                float y1 = face.getPosition().y;
+                float x2 = x1 + face.getWidth();
+                float y2 = y1 + face.getHeight();
+                RectF rectF = new RectF(x1, y1, x2, y2);
+                canvas.drawRoundRect(rectF, 2, 2, rectPaint);
+            }
+
+            return faceDetector;
+        }
+
+    }
 }
+
