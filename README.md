@@ -11,7 +11,7 @@ This is a working demo that draws yellow boxes around detected faces.
 5. There are images in the drawable folder you can test with. You can also import your preferred image(s), just remember to set it on this line in the MainActivity.java class.
 
 ```
-  final Bitmap bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.a);
+  bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.a);
  ```
 
 # Thanks
